@@ -2,9 +2,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import EventEmitter from 'events'
 
-const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms))
 
-const stream = new EventEmitter();
+const stream = new EventEmitter()
 
 type Data = {
   completion: string
@@ -77,27 +78,31 @@ This implements a SSE persistent connection.
 
 The key is to set the proper response headers and send data in event stream format. In Next.js this logic is handled in API routes.`
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<string>) {
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache, no-transform");
-  res.setHeader("Connection", "keep-alive");
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<string>
+) {
+  res.setHeader('Content-Type', 'text/event-stream')
+  res.setHeader('Cache-Control', 'no-cache, no-transform')
+  res.setHeader('Connection', 'keep-alive')
 
-  stream.on("channel", function (event, completion) {
+  stream.on('channel', function (event, completion) {
     const data: Data = {
       completion,
       model: 'claude-2.0',
-      log_id: 'ff8c410dd8b98e8ed0dccfd52d7376df2179a85760a5282366fd97b0e23fdf5b',
+      log_id:
+        'ff8c410dd8b98e8ed0dccfd52d7376df2179a85760a5282366fd97b0e23fdf5b',
       messageLimit: {
-        type: 'withid_limit'
-      }
+        type: 'withid_limit',
+      },
     }
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
-  });
+    res.write(`data: ${JSON.stringify(data)}\n\n`)
+  })
 
   const words = exampleCompletion.split(' ')
   for (let i = 0; i < words.length; ++i) {
-    stream.emit("channel", "completion", ` ${words[i]}`);
-    await delay(50);
+    stream.emit('channel', 'completion', ` ${words[i]}`)
+    await delay(50)
   }
-  res.end("done\n");
+  res.end('done\n')
 }
